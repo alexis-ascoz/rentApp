@@ -28,6 +28,7 @@ exports.Account = class Account extends Sequelize.Model {
         );
     }
 
+    // @Override
     static async findOne(where) {
         let account = await super.findOne({ where })
 
@@ -39,6 +40,7 @@ exports.Account = class Account extends Sequelize.Model {
         }
     }
 
+    // @Override
     static async findAll() {
         let accountList = await super.findAll()
 
