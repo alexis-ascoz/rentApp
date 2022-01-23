@@ -31,8 +31,8 @@ const models = {
 
 async function sync(force) {
     try {
-        // Sync all models
-        Object.values(models).forEach(model => model.sync({ force }))
+        await sequelize.sync({ force })
+        // Object.values(models).forEach(model => await model.sync({ force }))
 
         console.log('Sync complete.')
     }

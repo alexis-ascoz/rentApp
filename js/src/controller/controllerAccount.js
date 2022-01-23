@@ -32,7 +32,7 @@ app.get('/accounts/:username',
             // If user is admin or if he read his own informations
             if (req.user.auth_level === auth.admin || req.user.username === username) {
                 let account = await models.Account.findOne({ username })
-
+                
                 res.status(200).json(account)
             }
             else {
@@ -51,7 +51,7 @@ app.post('/accounts',
             let { username, password } = req.body;
 
             password = await models.Account.hashPassword(password)
-
+            
             let account = await models.Account.create({ username, password, auth_level: 1 });
 
             res.status(201).json({ account })

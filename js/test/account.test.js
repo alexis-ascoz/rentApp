@@ -1,6 +1,5 @@
 const { app } = require("../src/app")
-const { sync, sequelize, models } = require ('../src/model/model')
-//const * as faker from "faker"
+const { sync, sequelize } = require('../src/model/model')
 const supertest = require('supertest')
 
 describe("test the JWT authorization middleware", () => {
@@ -9,39 +8,59 @@ describe("test the JWT authorization middleware", () => {
         await sync(true)
     })
 
-    it("should succeed when accessing an authed route with a valid JWT", async () => {
-        // await Account.create({ email, password })
+    it("create user", async () => {
+        const response = await supertest(app)
+            .post("/accounts")
+            .send({
+                username: 'test_username',
+                password: 'test_password'
+            })
+            .expect(201)
 
-        // const { authToken } = await Account.loginUser({
-        //     email,
-        //     password,
-        // })
-
-        // // App is used with supertest to simulate server request
-        // const response = await supertest(app)
-        //     .post("/v1/auth/protected")
-        //     .expect(200)
-        //     .set("authorization", `bearer ${authToken}`)
-
-        // expect(response.body).toMatchObject({
-        //     success: true,
-        // })
-        expect('a').toMatch('a')
+        expect(response.body.account.username).toMatch('test_username')
     })
 
-    // it("should fail when accessing an authed route with an invalid JWT", async () => {
-    //     const invalidJwt = "OhMyToken"
+    let token
 
-    //     const response = await supertest(app)
-    //         .post("/v1/auth/protected")
-    //         .expect(400)
-    //         .set("authorization", `bearer ${invalidJwt}`)
+    it("login", async () => {
+        const response = await supertest(app)
+            .post("/login")
+            .send({
+                username: 'test_username',
+                password: 'test_password'
+            })
+            .expect(200)
 
-    //     expect(response.body).toMatchObject({
-    //         success: false,
-    //         message: "Invalid token.",
-    //     })
-    // })
+        token = response.body.token
+
+        expect(token).not.toBeUndefined()
+    })
+
+    it("accessing an authed route with a valid JWT", async () => {
+        const response = await supertest(app)
+            .get("/accounts/test_username")
+            .set("Authorization", `bearer ${token}`)
+            .expect(200)
+
+        expect(response.body.username).toMatch('test_username')
+    })
+
+    it("accessing an authed route with an invalid JWT", async () => {
+        const response = await supertest(app)
+            .get("/accounts")
+            .set("Authorization", `bearer ${token}`)
+            .expect(401)
+    })
+
+    it("delete account", async () => {
+        const response = await supertest(app)
+            .delete("/accounts/test_username")
+            .set("Authorization", `bearer ${token}`)
+            .send({
+                username: 'test_username'
+            })
+            .expect(204)
+    })
 
     // After all tests have finished, close the DB connection
     afterAll(async () => {
