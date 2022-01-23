@@ -1,8 +1,8 @@
 const { app } = require('./app')
-const { connectAndSync } = require('./model/model')
+const { sync } = require('./model/model')
 
-// Init BDD
-connectAndSync()
+// Sync DB
+sync(false)
 
 // Run app
 app.listen(3000, function () {

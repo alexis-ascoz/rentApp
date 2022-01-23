@@ -1,5 +1,4 @@
 const Sequelize = require('sequelize')
-const { Account } = require('./modelAccount')
 
 console.log('Run on ' + process.env.NODE_ENV + ' environment.')
 
@@ -27,25 +26,23 @@ dbs = {
 const sequelize = new Sequelize(dbs[process.env.NODE_ENV]);
 
 const models = {
-    Account: Account.init(sequelize)
+    Account: require('./modelAccount').Account.init(sequelize)
 }
 
-async function connectAndSync() {
+async function sync(force) {
     try {
-        // Etablish DB connexion
-        await sequelize.authenticate()
-
         // Sync all models
-        Object.values(models).forEach(model => model.sync())
+        Object.values(models).forEach(model => model.sync({ force }))
 
-        console.log('Connection has been established successfully.')
+        console.log('Sync complete.')
     }
     catch (error) {
-        console.error('Unable to connect to the database:', error)
+        console.error('Unable to sync the database : ', error)
     }
 }
 
 module.exports = {
-    connectAndSync,
+    sync,
+    sequelize,
     models
 }

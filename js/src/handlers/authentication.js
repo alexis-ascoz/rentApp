@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
-const { models } = require('./model/model');
+const { models } = require('../model/model');
 
 // Auth levels
 const admin = 2

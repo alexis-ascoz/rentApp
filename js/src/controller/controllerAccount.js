@@ -1,6 +1,6 @@
 const { app } = require('../app')
 const { models } = require('../model/model')
-const auth = require('../authentication')
+const auth = require('../handlers/authentication')
 
 // Read all
 app.get('/accounts',
