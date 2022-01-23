@@ -1,9 +1,6 @@
 const { app } = require('../app')
 const { models } = require('../model/model')
 const auth = require('../authentication')
-const bcrypt = require('bcrypt');
-
-const saltRounds = 10
 
 // Read all
 app.get('/accounts',
@@ -14,12 +11,7 @@ app.get('/accounts',
             if (req.user.auth_level === auth.admin) {
                 let accountList = await models.Account.findAll()
 
-                if (accountList) {
-                    res.status(200).json(accountList)
-                }
-                else {
-                    next({ status: 204 })
-                }
+                res.status(200).json(accountList)
             }
             else {
                 next({ status: 401 })
@@ -39,14 +31,9 @@ app.get('/accounts/:username',
 
             // If user is admin or if he read his own informations
             if (req.user.auth_level === auth.admin || req.user.username === username) {
-                let account = await models.Account.findOne({ where: { username } })
+                let account = await models.Account.findOne({ username })
 
-                if (account) {
-                    res.status(200).json(account)
-                }
-                else {
-                    next({ status: 404 })
-                }
+                res.status(200).json(account)
             }
             else {
                 next({ status: 401 })
@@ -63,16 +50,11 @@ app.post('/accounts',
         try {
             let { username, password } = req.body;
 
-            if (password) {
-                password = await bcrypt.hash(password, saltRounds)
+            password = await models.Account.hashPassword(password)
 
-                let account = await models.Account.create({ username, password, auth_level: 1 });
+            let account = await models.Account.create({ username, password, auth_level: 1 });
 
-                res.status(201).json({ account })
-            }
-            else {
-                next({ status: 400 })
-            }
+            res.status(201).json({ account })
         }
         catch (err) {
             next(err)
@@ -89,23 +71,13 @@ app.put('/accounts/:username',
 
             // If user is admin or if he update his own informations
             if (req.user.auth_level === auth.admin || req.user.username === username) {
-                let account = await models.Account.findOne({ where: { username } })
+                let account = await models.Account.findOne({ username })
 
-                if (account) {
-                    if (password) {
-                        password = await bcrypt.hash(password, saltRounds)
+                password = await models.Account.hashPassword(password)
 
-                        account = await account.update({ password })
+                account = await account.update({ password })
 
-                        res.status(200).json(account)
-                    }
-                    else {
-                        next({ status: 400 })
-                    }
-                }
-                else {
-                    next({ status: 404 })
-                }
+                res.status(200).json(account)
             }
             else {
                 next({ status: 401 })
@@ -125,16 +97,11 @@ app.delete('/accounts/:username',
 
             // If user is admin or if he delete his own informations
             if (req.user.auth_level === auth.admin || req.user.username === username) {
-                let account = await models.Account.findOne({ where: { username } });
+                let account = await models.Account.findOne({ username });
 
-                if (account) {
-                    account = account.destroy()
+                account = account.destroy()
 
-                    res.status(204).json()
-                }
-                else {
-                    next({ status: 404 })
-                }
+                res.status(204).json()
             }
             else {
                 next({ status: 401 })
@@ -150,30 +117,15 @@ app.post('/login',
         const { username, password } = req.body;
 
         try {
-            if (username && password) {
-                let account = await models.Account.findOne({ where: { username } });
+            let account = await models.Account.findOne({ username });
 
-                if (account) {
-                    let passwordIsOk = await bcrypt.compare(password, account.password)
+            await account.checkPassword(password, account.password)
 
-                    if (passwordIsOk) {
-                        let payload = { username: account.username };
+            let payload = { username: account.username };
 
-                        let token = auth.jwt.sign(payload, auth.jwtOptions.secretOrKey);
+            let token = auth.jwt.sign(payload, auth.jwtOptions.secretOrKey);
 
-                        res.status(200).json({ token });
-                    }
-                    else {
-                        next({ status: 401 })
-                    }
-                }
-                else {
-                    next({ status: 404 })
-                }
-            }
-            else {
-                next({ status: 400 })
-            }
+            res.status(200).json({ token });
         }
         catch (err) {
             next(err)

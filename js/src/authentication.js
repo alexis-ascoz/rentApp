@@ -15,14 +15,9 @@ let jwtOptions = {
 
 passport.use(new Strategy(jwtOptions, async function (jwt_payload, next) {
     try {
-        let account = await models.Account.findOne({ where: { username: jwt_payload.username } });
-        
-        if (account) {
-            next(null, account);
-        }
-        else {
-            next(null, false);
-        }
+        let account = await models.Account.findOne({ username: jwt_payload.username });
+
+        next(null, account);
     }
     catch (err) {
         next(null, false)
