@@ -13,7 +13,13 @@ describe("test the JWT authorization middleware", () => {
             .post("/accounts")
             .send({
                 username: 'test_username',
-                password: 'test_password'
+                password: 'test_password',
+                firstname: "alexis",
+                lastname: "bernard",
+                birthday: "03/22/2000",
+                birthplace: "L'isle Adam",
+                phone_number: "0651585548",
+                email: "alexisbernard34310@gmail.com"
             })
             .expect(201)
 

@@ -2,18 +2,20 @@ const Sequelize = require('sequelize')
 
 exports.exceptionParser = function (err, req, res, next) {
     if (err.status){
-        next(err)
+        return next(err)
     }
     else if (err instanceof Sequelize.UniqueConstraintError) {
-        next({ status: 409 })
+        return next({ status: 409 })
     }
     else if (err instanceof Sequelize.ValidationError) {
-        next({ status: 400 })
+        // console.log(err.stack)
+
+        return next({ status: 400 })
     }
     else {
         console.log(err.stack)
 
-        next({ status: 500 })
+        return next({ status: 500 })
     }
 }
 

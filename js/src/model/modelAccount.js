@@ -17,6 +17,31 @@ exports.Account = class Account extends Sequelize.Model {
                 auth_level: {
                     type: Sequelize.INTEGER,
                     allowNull: false,
+                },
+                firstname: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                },
+                lastname: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                },
+                birthday: {
+                    type: Sequelize.DATE,
+                    allowNull: false,
+                },
+                birthplace: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                },
+                phone_number: {
+                    type: Sequelize.INTEGER,
+                    allowNull: false,
+                },
+                email: {
+                    type: Sequelize.STRING,
+                    allowNull: true,
+                    isEmail: true,
                 }
             },
             {
@@ -31,7 +56,7 @@ exports.Account = class Account extends Sequelize.Model {
     // @Override
     static async findOne(where) {
         let account = await super.findOne({ where })
-        
+
         if (account) {
             return account
         }
@@ -41,8 +66,8 @@ exports.Account = class Account extends Sequelize.Model {
     }
 
     // @Override
-    static async findAll() {
-        let accountList = await super.findAll()
+    static async findAll(where) {
+        let accountList = await super.findAll({ where })
 
         if (accountList) {
             return accountList

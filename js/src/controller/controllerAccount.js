@@ -14,11 +14,11 @@ app.get('/accounts',
                 res.status(200).json(accountList)
             }
             else {
-                next({ status: 401 })
+                return next({ status: 401 })
             }
         }
         catch (err) {
-            next(err)
+            return next(err)
         }
     })
 
@@ -32,15 +32,15 @@ app.get('/accounts/:username',
             // If user is admin or if he read his own informations
             if (req.user.auth_level === auth.admin || req.user.username === username) {
                 let account = await models.Account.findOne({ username })
-                
+
                 res.status(200).json(account)
             }
             else {
-                next({ status: 401 })
+                return next({ status: 401 })
             }
         }
         catch (err) {
-            next(err)
+            return next(err)
         }
     })
 
@@ -48,16 +48,18 @@ app.get('/accounts/:username',
 app.post('/accounts',
     async function (req, res, next) {
         try {
-            let { username, password } = req.body;
+            let { username, password, firstname, lastname, birthday, birthplace, phone_number, email } = req.body;
 
             password = await models.Account.hashPassword(password)
-            
-            let account = await models.Account.create({ username, password, auth_level: 1 });
+
+            let account = await models.Account.create(
+                { username, password, auth_level: 1, firstname, lastname, birthday, birthplace, phone_number, email }
+            );
 
             res.status(201).json({ account })
         }
         catch (err) {
-            next(err)
+            return next(err)
         }
     })
 
@@ -66,25 +68,25 @@ app.put('/accounts/:username',
     auth.passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
         try {
-            let { password } = req.body;
+            let { password, firstname, lastname, birthday, birthplace, phone_number, email } = req.body;
             let { username } = req.params;
 
             // If user is admin or if he update his own informations
             if (req.user.auth_level === auth.admin || req.user.username === username) {
                 let account = await models.Account.findOne({ username })
 
-                password = await models.Account.hashPassword(password)
+                if (password) password = await models.Account.hashPassword(password)
 
-                account = await account.update({ password })
+                account = await account.update({ password, firstname, lastname, birthday, birthplace, phone_number, email })
 
                 res.status(200).json(account)
             }
             else {
-                next({ status: 401 })
+                return next({ status: 401 })
             }
         }
         catch (err) {
-            next(err)
+            return next(err)
         }
     })
 
@@ -104,11 +106,11 @@ app.delete('/accounts/:username',
                 res.status(204).json()
             }
             else {
-                next({ status: 401 })
+                return next({ status: 401 })
             }
         }
         catch (err) {
-            next(err)
+            return next(err)
         }
     })
 
@@ -128,6 +130,6 @@ app.post('/login',
             res.status(200).json({ token });
         }
         catch (err) {
-            next(err)
+            return next(err)
         }
     });

@@ -1,1 +1,2 @@
 require('./controllerAccount')
+require('./controllerTenant')

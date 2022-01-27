@@ -5,26 +5,9 @@ exports.Tenant = class Tenant extends Sequelize.Model {
     static init(sequelize) {
         return super.init(
             {
-                id_tenant: {
-                    type: DataTypes.INTEGER,
-                    autoIncrement: true,
+                account_username: {
+                    type: Sequelize.STRING,
                     primaryKey: true
-                },
-                firstname: {
-                    type: Sequelize.STRING,
-                    allowNull: false,
-                },
-                lastname: {
-                    type: Sequelize.STRING,
-                    allowNull: false,
-                },
-                birthday: {
-                    type: Sequelize.DATE,
-                    allowNull: false,
-                },
-                birthplace: {
-                    type: Sequelize.STRING,
-                    allowNull: false,
                 },
                 old_address: {
                     type: Sequelize.STRING,
@@ -37,15 +20,6 @@ exports.Tenant = class Tenant extends Sequelize.Model {
                 old_city: {
                     type: Sequelize.STRING,
                     allowNull: true,
-                },
-                phone_numer: {
-                    type: Sequelize.STRING,
-                    allowNull: false,
-                },
-                email: {
-                    type: Sequelize.STRING,
-                    allowNull: true,
-                    isEmail: true,
                 },
                 guarantee: {
                     type: Sequelize.TEXT,
@@ -61,27 +35,44 @@ exports.Tenant = class Tenant extends Sequelize.Model {
         );
     }
 
-    // @Override
-    static async findOne(where) {
-        // let account = await super.findOne({ where })
+    static associate(models) {
+        this.belongsTo(
+            models.Account,
+            {
+                onDelete: 'CASCADE',
+                foreignKey: { name: 'account_username' },
+                primaryKey: true
+            });
 
-        // if (account) {
-        //     return account
-        // }
-        // else {
-        //     throw ({ status: 404 })
-        // }
+        this.belongsTo(
+            models.Account,
+            {
+                onDelete: 'CASCADE',
+                foreignKey: { name: 'owner_username', allowNull: false }
+            });
     }
 
     // @Override
-    static async findAll() {
-        // let accountList = await super.findAll()
+    static async findOne(where) {
+        let tenant = await super.findOne({ where })
 
-        // if (accountList) {
-        //     return accountList
-        // }
-        // else {
-        //     throw ({ status: 204 })
-        // }
+        if (tenant) {
+            return tenant
+        }
+        else {
+            throw ({ status: 404 })
+        }
+    }
+
+    // @Override
+    static async findAll(where) {
+        let tenantList = await super.findAll({ where })
+
+        if (tenantList) {
+            return tenantList
+        }
+        else {
+            throw ({ status: 204 })
+        }
     }
 }
