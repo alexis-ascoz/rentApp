@@ -1,7 +1,6 @@
 const { app } = require('../app')
 const { models, sequelize } = require('../model/model')
 const auth = require('../handlers/authentication')
-const util = require('util');
 
 // Read all
 app.get('/tenants',
@@ -96,7 +95,6 @@ app.post('/tenants',
                     return next({ status: 400 })
                 }
             }
-
         }
         catch (err) {
             return next(err)
@@ -104,20 +102,23 @@ app.post('/tenants',
     })
 
 // Update
-app.put('/tenants/:username',
+app.put('/tenants/:account_username',
     auth.passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
         try {
-            let { password, firstname, lastname, birthday, birthplace, phone_number, email } = req.body;
-            let { username } = req.params;
+            let { password, firstname, lastname, birthday, birthplace, phone_number, email, old_address, old_postal_code, old_city, guarantee } = req.body;
 
-            // If user is admin or if he update his own informations
-            if (req.user.auth_level === auth.admin || req.user.username === username) {
-                let tenant = await models.Tenant.findOne({ username })
+            let { account_username } = req.params;
 
+            let tenant = await models.Tenant.findOne({
+                account_username
+            })
+
+            // If user is admin or if he update his own informations or if he read the informations of own tenant
+            if (req.user.auth_level === auth.admin || req.user.username === account_username || req.user.username === tenant.owner_username) {
                 if (password) password = await models.Account.hashPassword(password)
 
-                tenant = await tenant.update({ password, firstname, lastname, birthday, birthplace, phone_number, email })
+                tenant = await tenant.update({ password, firstname, lastname, birthday, birthplace, phone_number, email, old_address, old_postal_code, old_city, guarantee })
 
                 res.status(200).json(tenant)
             }

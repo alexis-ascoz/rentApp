@@ -1,5 +1,4 @@
 const Sequelize = require('sequelize')
-const bcrypt = require('bcrypt');
 
 exports.Tenant = class Tenant extends Sequelize.Model {
     static init(sequelize) {

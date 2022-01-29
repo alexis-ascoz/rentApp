@@ -37,9 +37,9 @@ async function sync(force) {
             .forEach(model => model.associate(models));
 
         await sequelize.sync({ force })
-
+        
         // Create procedure that create correctly a tenant
-        let res = await sequelize.query(
+        await sequelize.query(
             'CREATE OR REPLACE PROCEDURE CreateTenant( ' +
 
             'username "Accounts".username%type, ' +
