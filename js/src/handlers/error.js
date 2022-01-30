@@ -1,25 +1,27 @@
 const Sequelize = require('sequelize')
 
 exports.exceptionParser = function (err, req, res, next) {
-    if (err.status){
+    if (err.status) {
         return next(err)
     }
     else if (err instanceof Sequelize.UniqueConstraintError) {
-        return next({ status: 409 })
+        return next({ status: 409, msg: err.parent.detail })
+    }
+    else if (err.name == 'SequelizeForeignKeyConstraintError') {
+        return next({ status: 400, msg: err.message })
     }
     else if (err instanceof Sequelize.ValidationError) {
-        // console.log(err.stack)
-
-        return next({ status: 400 })
+        return next({ status: 400, msg: err.errors[0].message })
     }
     else {
-        console.log(err.stack)
+        console.log(err.name, err.stack)
 
         return next({ status: 500 })
+        // return next({ status: 500, msg: err })
     }
 }
 
-exports.errorCodeParser = function(err, req, res, next) {
+exports.errorCodeParser = function (err, req, res, next) {
     let errorCode
 
     switch (err.status) {
@@ -42,6 +44,6 @@ exports.errorCodeParser = function(err, req, res, next) {
             errorCode = 'UNKNOWN_ERROR'
             break;
     }
-    
+
     res.status(err.status).json({ code: errorCode, msg: err.msg })
 }

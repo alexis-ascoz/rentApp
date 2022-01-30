@@ -27,7 +27,8 @@ const sequelize = new Sequelize(dbs[process.env.NODE_ENV]);
 
 const models = {
     Account: require('./modelAccount').Account.init(sequelize),
-    Tenant: require('./modelTenant').Tenant.init(sequelize)
+    Tenant: require('./modelTenant').Tenant.init(sequelize),
+    RentReceipt: require('./modelRentReceipt ').RentReceipt.init(sequelize)
 }
 
 async function sync(force) {
@@ -37,7 +38,7 @@ async function sync(force) {
             .forEach(model => model.associate(models));
 
         await sequelize.sync({ force })
-        
+
         // Create procedure that create correctly a tenant
         await sequelize.query(
             'CREATE OR REPLACE PROCEDURE CreateTenant( ' +

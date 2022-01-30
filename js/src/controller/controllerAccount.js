@@ -7,7 +7,7 @@ app.get('/accounts',
     auth.passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
         try {
-            // If user is admin
+            // Admin
             if (req.user.auth_level === auth.admin) {
                 let accountList = await models.Account.findAll()
 
@@ -29,7 +29,7 @@ app.get('/accounts/:username',
         try {
             const { username } = req.params;
 
-            // If user is admin or if he read his own informations
+            // Admin - self
             if (req.user.auth_level === auth.admin || req.user.username === username) {
                 let account = await models.Account.findOne({ username })
 
@@ -71,7 +71,7 @@ app.put('/accounts/:username',
             let { password, firstname, lastname, birthday, birthplace, phone_number, email } = req.body;
             let { username } = req.params;
 
-            // If user is admin or if he update his own informations
+            // Admin - Self
             if (req.user.auth_level === auth.admin || req.user.username === username) {
                 let account = await models.Account.findOne({ username })
 
@@ -97,7 +97,7 @@ app.delete('/accounts/:username',
         try {
             const { username } = req.params;
 
-            // If user is admin or if he delete his own informations
+            // Admin - Self
             if (req.user.auth_level === auth.admin || req.user.username === username) {
                 let account = await models.Account.findOne({ username });
 

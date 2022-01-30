@@ -9,11 +9,11 @@ app.get('/tenants',
         try {
             let tenantList
 
-            // If user is admin
+            // Admin
             if (req.user.auth_level === auth.admin) {
                 tenantList = await models.Tenant.findAll()
             }
-            // If user is owner
+            // Owner
             else if (req.user.auth_level === auth.owner) {
                 tenantList = await models.Tenant.findAll({
                     owner_username: req.user.username
@@ -41,8 +41,8 @@ app.get('/tenants/:account_username',
                 account_username
             })
 
-            // If user is admin or if he read his own informations or if he read the informations of own tenant
-            if (req.user.auth_level === auth.admin || req.user.username === account_username || req.user.username === tenant.owner_username) {
+            // Admin - owner - self
+            if (req.user.auth_level === auth.admin || req.user.username === tenant.account_username || req.user.username === tenant.owner_username) {
                 res.status(200).json(tenant)
             }
             else {
@@ -59,12 +59,89 @@ app.post('/tenants',
     auth.passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
         try {
+            let { account_username, old_address, old_postal_code, old_city, guarantee } = req.body;
+
+            // Admin - Owner
+            if (req.user.auth_level === auth.admin || req.user.auth_level === auth.owner) {
+                let tenant = await models.Tenant.create(
+                    { account_username, old_address, old_postal_code, old_city, guarantee, owner_username: req.user.username }
+                );
+
+                res.status(201).json({ tenant })
+            }
+            else {
+                return next({ status: 401 })
+            }
+        }
+        catch (err) {
+            return next(err)
+        }
+    })
+
+// Update
+app.put('/tenants/:account_username',
+    auth.passport.authenticate('jwt', { session: false }),
+    async function (req, res, next) {
+        try {
+            let { old_address, old_postal_code, old_city, guarantee } = req.body;
+
+            let { account_username } = req.params;
+
+            let tenant = await models.Tenant.findOne({
+                account_username
+            })
+
+            // Admin - Owner
+            if (req.user.auth_level === auth.admin || req.user.username === tenant.owner_username) {
+                tenant = await tenant.update({ old_address, old_postal_code, old_city, guarantee })
+
+                res.status(200).json(tenant)
+            }
+            else {
+                return next({ status: 401 })
+            }
+        }
+        catch (err) {
+            return next(err)
+        }
+    })
+
+// Delete
+app.delete('/tenants/:account_username',
+    auth.passport.authenticate('jwt', { session: false }),
+    async function (req, res, next) {
+        try {
+            const { account_username } = req.params;
+
+            let tenant = await models.Tenant.findOne({ account_username });
+
+            // Admin - Owner
+            if (req.user.auth_level === auth.admin || req.user.username === tenant.owner_username) {
+                tenant = tenant.destroy()
+
+                res.status(204).json()
+            }
+            else {
+                return next({ status: 401 })
+            }
+        }
+        catch (err) {
+            return next(err)
+        }
+    })
+
+// Create tenant procedure
+app.post('/createTenantWithAccount',
+    auth.passport.authenticate('jwt', { session: false }),
+    async function (req, res, next) {
+        try {
             // Account informations
             let { username, password, firstname, lastname, birthday, birthplace, phone_number, email } = req.body;
 
             // Tenant informations
             let { old_address, old_postal_code, old_city, guarantee } = req.body;
 
+            // Admin - Owner
             if (req.user.auth_level === auth.admin || req.user.auth_level === auth.owner) {
                 password = await models.Account.hashPassword(password)
 
@@ -94,60 +171,6 @@ app.post('/tenants',
                 else {
                     return next({ status: 400 })
                 }
-            }
-        }
-        catch (err) {
-            return next(err)
-        }
-    })
-
-// Update
-app.put('/tenants/:account_username',
-    auth.passport.authenticate('jwt', { session: false }),
-    async function (req, res, next) {
-        try {
-            let { password, firstname, lastname, birthday, birthplace, phone_number, email, old_address, old_postal_code, old_city, guarantee } = req.body;
-
-            let { account_username } = req.params;
-
-            let tenant = await models.Tenant.findOne({
-                account_username
-            })
-
-            // If user is admin or if he update his own informations or if he read the informations of own tenant
-            if (req.user.auth_level === auth.admin || req.user.username === account_username || req.user.username === tenant.owner_username) {
-                if (password) password = await models.Account.hashPassword(password)
-
-                tenant = await tenant.update({ password, firstname, lastname, birthday, birthplace, phone_number, email, old_address, old_postal_code, old_city, guarantee })
-
-                res.status(200).json(tenant)
-            }
-            else {
-                return next({ status: 401 })
-            }
-        }
-        catch (err) {
-            return next(err)
-        }
-    })
-
-// Delete
-app.delete('/tenants/:username',
-    auth.passport.authenticate('jwt', { session: false }),
-    async function (req, res, next) {
-        try {
-            const { username } = req.params;
-
-            // If user is admin or if he delete his own informations
-            if (req.user.auth_level === auth.admin || req.user.username === username) {
-                let tenant = await models.Tenant.findOne({ username });
-
-                tenant = tenant.destroy()
-
-                res.status(204).json()
-            }
-            else {
-                return next({ status: 401 })
             }
         }
         catch (err) {
