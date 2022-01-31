@@ -21,7 +21,7 @@ app.get('/rentReceipts',
                     })
                 }
                 else {
-                    return next({ status: 401 })
+                    return next({ status: 403 })
                 }
             }
             // Admin
@@ -29,7 +29,7 @@ app.get('/rentReceipts',
                 rentReceiptList = await models.RentReceipt.findAll()
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
 
             res.status(200).json(rentReceiptList)
@@ -55,7 +55,7 @@ app.get('/rentReceipts/:id',
                 res.status(200).json(rentReceipt)
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -81,7 +81,7 @@ app.post('/rentReceipts',
                 res.status(201).json({ rentReceipt })
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -109,7 +109,7 @@ app.put('/rentReceipts/:id',
                 res.status(200).json(rentReceipt)
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -135,7 +135,7 @@ app.delete('/rentReceipts/:id',
                 res.status(204).json()
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {

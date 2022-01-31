@@ -14,7 +14,7 @@ app.get('/accounts',
                 res.status(200).json(accountList)
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -82,7 +82,7 @@ app.put('/accounts/:username',
                 res.status(200).json(account)
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -106,7 +106,7 @@ app.delete('/accounts/:username',
                 res.status(204).json()
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {

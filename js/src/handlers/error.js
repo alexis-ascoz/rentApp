@@ -34,6 +34,9 @@ exports.errorCodeParser = function (err, req, res, next) {
         case 401:
             errorCode = 'UNAUTHORIZED'
             break;
+        case 403:
+            errorCode = 'FORBIDDEN'
+            break;
         case 404:
             errorCode = 'NOT_FOUND'
             break;

@@ -20,7 +20,7 @@ app.get('/tenants',
                 })
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
 
             res.status(200).json(tenantList)
@@ -46,7 +46,7 @@ app.get('/tenants/:account_username',
                 res.status(200).json(tenant)
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -70,7 +70,7 @@ app.post('/tenants',
                 res.status(201).json({ tenant })
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -98,7 +98,7 @@ app.put('/tenants/:account_username',
                 res.status(200).json(tenant)
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
@@ -122,7 +122,7 @@ app.delete('/tenants/:account_username',
                 res.status(204).json()
             }
             else {
-                return next({ status: 401 })
+                return next({ status: 403 })
             }
         }
         catch (err) {
