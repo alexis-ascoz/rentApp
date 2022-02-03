@@ -136,7 +136,7 @@ app.post('/login',
                         maxAge: 1000 * 60 * 60 * 12
                     }
                 )
-                .json({ accessToken })
+                .json({ account })
         }
         catch (err) {
             return next(err)
