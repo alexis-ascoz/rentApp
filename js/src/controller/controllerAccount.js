@@ -125,9 +125,18 @@ app.post('/login',
 
             let payload = { username: account.username };
 
-            let token = auth.jwt.sign(payload, auth.jwtOptions.secretOrKey);
+            let accessToken = auth.jwt.sign(payload, auth.jwtOptions.secretOrKey);
 
-            res.status(200).json({ token });
+            res.status(200)
+                .cookie(
+                    "jwt",
+                    accessToken,
+                    {
+                        httpOnly: true,
+                        maxAge: 1000 * 60 * 60 * 12
+                    }
+                )
+                .json({ accessToken })
         }
         catch (err) {
             return next(err)

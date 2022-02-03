@@ -9,7 +9,7 @@ const owner = 1
 const tenant = 0
 
 let jwtOptions = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: req => req.cookies['jwt'],
     secretOrKey: 'superSecretKey'
 }
 

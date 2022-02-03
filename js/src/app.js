@@ -2,6 +2,7 @@ const express = require('express');
 var cors = require('cors')
 const app = express();
 const bodyParser = require('body-parser');
+const cookieParser = require("cookie-parser");
 const { passport } = require('./handlers/authentication');
 const { exceptionParser, errorCodeParser } = require('./handlers/error');
 
@@ -12,6 +13,7 @@ module.exports = {
 
 app.use(cors())
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
