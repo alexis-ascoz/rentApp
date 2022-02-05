@@ -127,9 +127,9 @@ app.post('/login',
 
             let payload = { username: account.username };
 
-            account.setDataValue('accessToken', auth.jwt.sign(payload, auth.jwtOptions.secretOrKey))
+            let accessToken = auth.jwt.sign(payload, auth.jwtOptions.secretOrKey)
 
-            res.status(200).json(account)
+            res.status(200).json({ accessToken, username: account.username, auth_level: account.auth_level })
         }
         catch (err) {
             return next(err)
