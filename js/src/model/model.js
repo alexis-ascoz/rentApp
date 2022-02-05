@@ -28,7 +28,8 @@ const sequelize = new Sequelize(dbs[process.env.NODE_ENV]);
 const models = {
     Account: require('./modelAccount').Account.init(sequelize),
     Tenant: require('./modelTenant').Tenant.init(sequelize),
-    RentReceipt: require('./modelRentReceipt ').RentReceipt.init(sequelize)
+    RentReceipt: require('./modelRentReceipt ').RentReceipt.init(sequelize),
+    PasswordHistorical: require('./modelPasswordHistorical').PasswordHistorical.init(sequelize)
 }
 
 async function sync(force) {
@@ -68,7 +69,32 @@ async function sync(force) {
             'VALUES (username, old_address, old_postal_code, old_city, guarantee, owner_username); ' +
 
             'end; ' +
-            '$$; ')
+            '$$; '
+        )
+        
+        // Create trigger that stores an password historical
+        await sequelize.query(
+            'CREATE OR REPLACE FUNCTION storePasswordToHistoricals() ' +
+            'RETURNS TRIGGER ' +
+            'LANGUAGE PLPGSQL ' +
+            'as $$ ' +
+
+            'begin ' +
+
+            'INSERT INTO "PasswordHistoricals"(password, account_username) ' +
+            'VALUES (NEW.password, NEW.username); ' +
+
+            'RETURN NEW; ' +
+            
+            'END; ' +
+            '$$; ' +
+
+            'drop trigger if exists storePassword on "Accounts"; ' +
+
+            'create TRIGGER storePassword ' +
+            'AFTER insert or update on "Accounts" ' +
+            'FOR EACH ROW EXECUTE PROCEDURE storePasswordToHistoricals(); '
+        )
 
         console.log('Sync complete.')
     }

@@ -77,7 +77,26 @@ app.put('/accounts/:username',
 
                 let account = await models.Account.findOne({ username })
 
-                if (password) password = await models.Account.hashPassword(password)
+                if (password) {
+                    let passwordList = await models.PasswordHistorical.findAll({
+                        account_username: username
+                    })
+
+                    // Check if this password have been used in the past
+                    // It's dosen't really work, bcrypt is works a little too well
+                    for (const passwordHist of passwordList) {
+                        try {
+                            await account.checkPassword(password, passwordHist.password)
+
+                            res.status(400).json({ msg: 'Please use a never-used password' })
+                            return
+                        } catch {
+                            console.log(passwordHist.password + ' ok')
+                        }
+                    }
+
+                    password = await models.Account.hashPassword(password)
+                }
 
                 account = await account.update({ password, firstname, lastname, birthday, birthplace, phone_number, email, auth_level })
 
