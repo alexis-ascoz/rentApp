@@ -73,11 +73,13 @@ app.put('/accounts/:username',
 
             // Admin - Self
             if (req.user.auth_level === auth.admin || req.user.username === username) {
+                let auth_level = req.user.auth_level === auth.admin ? req.body.auth_level : undefined
+
                 let account = await models.Account.findOne({ username })
 
                 if (password) password = await models.Account.hashPassword(password)
-
-                account = await account.update({ password, firstname, lastname, birthday, birthplace, phone_number, email })
+                console.log(password, auth_level)
+                account = await account.update({ password, firstname, lastname, birthday, birthplace, phone_number, email, auth_level })
 
                 res.status(200).json(account)
             }
@@ -127,16 +129,7 @@ app.post('/login',
 
             let accessToken = auth.jwt.sign(payload, auth.jwtOptions.secretOrKey);
 
-            res.status(200)
-                .cookie(
-                    "jwt",
-                    accessToken,
-                    {
-                        httpOnly: true,
-                        maxAge: 1000 * 60 * 60 * 12
-                    }
-                )
-                .json({ account })
+            res.status(200).json({ accessToken, auth_level: account.auth_level, username: account.username })
         }
         catch (err) {
             return next(err)
