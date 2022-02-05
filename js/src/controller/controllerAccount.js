@@ -78,7 +78,7 @@ app.put('/accounts/:username',
                 let account = await models.Account.findOne({ username })
 
                 if (password) password = await models.Account.hashPassword(password)
-                console.log(password, auth_level)
+                
                 account = await account.update({ password, firstname, lastname, birthday, birthplace, phone_number, email, auth_level })
 
                 res.status(200).json(account)
