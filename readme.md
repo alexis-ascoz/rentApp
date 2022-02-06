@@ -2,5 +2,7 @@
 
 ## Launch
 
+```bash
 npm i
 npm start
+```
