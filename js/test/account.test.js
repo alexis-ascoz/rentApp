@@ -37,7 +37,7 @@ describe("test the JWT authorization middleware", () => {
             })
             .expect(200)
 
-        token = response.body.token
+        token = response.body.accessToken
 
         expect(token).not.toBeUndefined()
     })
@@ -55,7 +55,7 @@ describe("test the JWT authorization middleware", () => {
         const response = await supertest(app)
             .get("/accounts")
             .set("Authorization", `bearer ${token}`)
-            .expect(401)
+            .expect(403)
     })
 
     it("delete account", async () => {
